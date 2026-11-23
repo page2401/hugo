@@ -1,0 +1,41 @@
+name: Deploy Hugo Extended to page branch
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-hugo
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+
+      - name: Setup Hugo Extended 0.170.1
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.170.1'
+          extended: true
+
+      - name: Build static site with Hugo
+        run: |
+          hugo --minify
+          touch public/.nojekyll
+
+      - name: Publish static output to orphan page branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public
+          publish_branch: page
+          force_orphan: true
+          commit_message: "deploy(page): build from ${{ github.sha }}"

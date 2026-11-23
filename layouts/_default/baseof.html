@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+    {{- with .Description }}
+    <meta name="description" content="{{ . }}" />
+    {{- end }}
+    <link rel="stylesheet" href="{{ "vendor/katex.min.css" | relURL }}" />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f6f8fa;
+        --bg-elevated: #ffffff;
+        --fg: #1f2328;
+        --fg-muted: #59636e;
+        --border: #d1d9e0;
+        --accent: #0969da;
+        --accent-soft: rgba(9, 105, 218, 0.1);
+        --code-bg: #f6f8fa;
+        --note-fg: #0969da;
+        --note-bg: rgba(9, 105, 218, 0.08);
+        --tip-fg: #1a7f37;
+        --tip-bg: rgba(26, 127, 55, 0.08);
+        --important-fg: #8250df;
+        --important-bg: rgba(130, 80, 223, 0.08);
+        --warning-fg: #9a6700;
+        --warning-bg: rgba(154, 103, 0, 0.1);
+        --caution-fg: #d1242f;
+        --caution-bg: rgba(209, 36, 47, 0.08);
+      }
+      html.dark,
+      html[data-theme="dark"] {
+        --bg: #0d1117;
+        --bg-soft: #161b22;
+        --bg-elevated: #161b22;
+        --fg: #e6edf3;
+        --fg-muted: #8b949e;
+        --border: #30363d;
+        --accent: #58a6ff;
+        --accent-soft: rgba(88, 166, 255, 0.14);
+        --code-bg: #161b22;
+        --note-fg: #58a6ff;
+        --note-bg: rgba(56, 139, 253, 0.12);
+        --tip-fg: #3fb950;
+        --tip-bg: rgba(46, 160, 67, 0.12);
+        --important-fg: #a371f7;
+        --important-bg: rgba(163, 113, 247, 0.12);
+        --warning-fg: #d29922;
+        --warning-bg: rgba(187, 128, 9, 0.14);
+        --caution-fg: #f85149;
+        --caution-bg: rgba(248, 81, 73, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.7;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+        padding: 0 1.25rem;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 700;
+        color: var(--fg);
+        font-size: 0.98rem;
+      }
+      .brand:hover {
+        text-decoration: none;
+      }
+      .version-pill {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.12rem 0.5rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+      }
+      .theme-btn {
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--bg-soft);
+        color: var(--fg);
+        border-radius: 6px;
+        padding: 0.28rem 0.65rem;
+        font-size: 0.8rem;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr) 220px;
+        max-width: 1440px;
+        margin: 0 auto;
+        min-height: calc(100vh - 56px);
+      }
+      .sidebar {
+        border-right: 1px solid var(--border);
+        padding: 1.25rem 1rem;
+        background: var(--bg-soft);
+      }
+      .nav-group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--fg-muted);
+        margin: 0 0 0.6rem 0.5rem;
+      }
+      .nav-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .nav-list li {
+        margin: 0.15rem 0;
+      }
+      .nav-link {
+        display: block;
+        padding: 0.38rem 0.6rem;
+        border-radius: 6px;
+        color: var(--fg);
+        font-size: 0.9rem;
+      }
+      .nav-link:hover {
+        background: var(--accent-soft);
+        text-decoration: none;
+      }
+      .nav-link.active {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .nav-sublist {
+        list-style: none;
+        margin: 0.15rem 0 0.35rem 0.85rem;
+        padding-left: 0.65rem;
+        border-left: 1px solid var(--border);
+      }
+      .main-content {
+        padding: 2rem 2.5rem 4rem;
+        max-width: 880px;
+        width: 100%;
+      }
+      .toc-aside {
+        padding: 1.5rem 1rem;
+        border-left: 1px solid var(--border);
+        font-size: 0.82rem;
+      }
+      .toc-title {
+        font-weight: 700;
+        color: var(--fg-muted);
+        margin-bottom: 0.5rem;
+      }
+      .toc-aside nav ul {
+        list-style: none;
+        padding-left: 0.75rem;
+        margin: 0.25rem 0;
+      }
+      .toc-aside nav > ul {
+        padding-left: 0;
+      }
+      .toc-aside nav li {
+        margin: 0.28rem 0;
+      }
+      .toc-aside nav a {
+        color: var(--fg-muted);
+      }
+      .toc-aside nav a:hover {
+        color: var(--accent);
+      }
+      h1, h2, h3, h4 {
+        line-height: 1.35;
+        margin-top: 1.8rem;
+        margin-bottom: 0.75rem;
+      }
+      h1 {
+        font-size: 1.85rem;
+        margin-top: 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      h2 {
+        font-size: 1.35rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--border);
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.88em;
+        background: var(--code-bg);
+        padding: 0.15rem 0.38rem;
+        border-radius: 4px;
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.95rem 1.1rem;
+        overflow-x: auto;
+      }
+      pre code {
+        background: transparent;
+        padding: 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        font-size: 0.92rem;
+      }
+      th, td {
+        border: 1px solid var(--border);
+        padding: 0.55rem 0.75rem;
+        text-align: left;
+      }
+      th {
+        background: var(--bg-soft);
+      }
+      blockquote {
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        border-left: 4px solid var(--border);
+        color: var(--fg-muted);
+        background: var(--bg-soft);
+        border-radius: 0 6px 6px 0;
+      }
+      details {
+        margin: 1rem 0;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-soft);
+      }
+      summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .hugo-callout,
+      .hugo-gfm-alert {
+        margin: 1rem 0;
+        padding: 0.8rem 1rem;
+        border-left: 4px solid var(--note-fg);
+        background: var(--note-bg);
+        border-radius: 0 8px 8px 0;
+      }
+      .hugo-callout-title,
+      .hugo-gfm-alert-title {
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: var(--note-fg);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .hugo-callout p:last-child,
+      .hugo-gfm-alert p:last-child {
+        margin-bottom: 0;
+      }
+      .hugo-callout.is-tip,
+      .hugo-gfm-alert.is-tip {
+        border-left-color: var(--tip-fg);
+        background: var(--tip-bg);
+      }
+      .hugo-callout.is-tip .hugo-callout-title,
+      .hugo-gfm-alert.is-tip .hugo-gfm-alert-title {
+        color: var(--tip-fg);
+      }
+      .hugo-callout.is-important,
+      .hugo-gfm-alert.is-important {
+        border-left-color: var(--important-fg);
+        background: var(--important-bg);
+      }
+      .hugo-callout.is-important .hugo-callout-title,
+      .hugo-gfm-alert.is-important .hugo-gfm-alert-title {
+        color: var(--important-fg);
+      }
+      .hugo-callout.is-warning,
+      .hugo-gfm-alert.is-warning {
+        border-left-color: var(--warning-fg);
+        background: var(--warning-bg);
+      }
+      .hugo-callout.is-warning .hugo-callout-title,
+      .hugo-gfm-alert.is-warning .hugo-gfm-alert-title {
+        color: var(--warning-fg);
+      }
+      .hugo-callout.is-danger,
+      .hugo-callout.is-caution,
+      .hugo-gfm-alert.is-caution {
+        border-left-color: var(--caution-fg);
+        background: var(--caution-bg);
+      }
+      .hugo-callout.is-danger .hugo-callout-title,
+      .hugo-callout.is-caution .hugo-callout-title,
+      .hugo-gfm-alert.is-caution .hugo-gfm-alert-title {
+        color: var(--caution-fg);
+      }
+      .hugo-mermaid-wrap {
+        margin: 1.25rem 0;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-soft);
+        text-align: center;
+        overflow-x: auto;
+      }
+      .hugo-mermaid-wrap pre.mermaid {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+      .hugo-math-block {
+        margin: 1rem 0;
+        overflow-x: auto;
+        text-align: center;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0.9rem;
+        margin: 1.5rem 0;
+      }
+      .hero-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        background: var(--bg-soft);
+      }
+      .hero-card h3 {
+        margin: 0 0 0.4rem;
+        font-size: 1rem;
+      }
+      .hero-card p {
+        margin: 0;
+        font-size: 0.86rem;
+        color: var(--fg-muted);
+      }
+      @media (max-width: 1100px) {
+        .shell {
+          grid-template-columns: 240px minmax(0, 1fr);
+        }
+        .toc-aside {
+          display: none;
+        }
+      }
+      @media (max-width: 768px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .main-content {
+          padding: 1.25rem 1rem 3rem;
+        }
+      }
+    </style>
+    <script>
+      (function () {
+        const saved = localStorage.getItem('hugo-benchmark-theme');
+        const attr = document.documentElement.getAttribute('data-theme');
+        if (attr === 'dark' || (!attr && saved === 'dark')) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="{{ site.Home.RelPermalink }}">
+        <span>Hugo 基准实测站</span>
+        <span class="version-pill">v{{ site.Params.version }} · Extended</span>
+      </a>
+      <div class="topbar-actions">
+        <a href="{{ site.Params.portal }}" target="_top">对比总站</a>
+        <a href="{{ site.Params.repo }}" target="_blank" rel="noopener">GitHub</a>
+        <button class="theme-btn" id="hugo-theme-toggle" type="button">切换深浅色</button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="nav-group-label">基准测试章节 (weight 排序)</div>
+        <ul class="nav-list">
+          <li>
+            <a class="nav-link{{ if .IsHome }} active{{ end }}" href="{{ site.Home.RelPermalink }}">
+              00. 概览与版本档案
+            </a>
+          </li>
+          {{- $current := . -}}
+          {{- range site.Home.Pages.ByWeight -}}
+            <li>
+              <a class="nav-link{{ if eq $current.RelPermalink .RelPermalink }} active{{ end }}" href="{{ .RelPermalink }}">
+                {{ .Title }}
+              </a>
+              {{- if .IsSection -}}
+                <ul class="nav-sublist">
+                  {{- range .Pages.ByWeight -}}
+                    <li>
+                      <a class="nav-link{{ if eq $current.RelPermalink .RelPermalink }} active{{ end }}" href="{{ .RelPermalink }}">
+                        {{ .Title }}
+                      </a>
+                      {{- if .IsSection -}}
+                        <ul class="nav-sublist">
+                          {{- range .Pages.ByWeight -}}
+                            <li>
+                              <a class="nav-link{{ if eq $current.RelPermalink .RelPermalink }} active{{ end }}" href="{{ .RelPermalink }}">
+                                {{ .Title }}
+                              </a>
+                            </li>
+                          {{- end -}}
+                        </ul>
+                      {{- end -}}
+                    </li>
+                  {{- end -}}
+                </ul>
+              {{- end -}}
+            </li>
+          {{- end -}}
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        {{ block "main" . }}{{ end }}
+      </main>
+
+      <aside class="toc-aside">
+        {{- if and (not .IsHome) .TableOfContents -}}
+          <div class="toc-title">本页目录</div>
+          {{ .TableOfContents }}
+        {{- end -}}
+      </aside>
+    </div>
+
+    <script src="{{ "vendor/katex.min.js" | relURL }}"></script>
+    <script src="{{ "vendor/auto-render.min.js" | relURL }}"></script>
+    <script src="{{ "vendor/mermaid.min.js" | relURL }}"></script>
+    <script>
+      (function () {
+        function renderAllMath() {
+          if (!window.katex) return;
+          document.querySelectorAll('.hugo-math-block').forEach(function (el) {
+            if (el.dataset.rendered === '1') return;
+            const raw = el.textContent || '';
+            window.katex.render(raw.trim(), el, { displayMode: true, throwOnError: false });
+            el.dataset.rendered = '1';
+          });
+          document.querySelectorAll('.hugo-math-inline').forEach(function (el) {
+            if (el.dataset.rendered === '1') return;
+            const raw = el.textContent || '';
+            window.katex.render(raw.trim(), el, { displayMode: false, throwOnError: false });
+            el.dataset.rendered = '1';
+          });
+        }
+
+        async function renderAllMermaid() {
+          if (!window.mermaid) return;
+          const nodes = document.querySelectorAll('.hugo-mermaid-wrap');
+          if (!nodes.length) return;
+          const isDark =
+            document.documentElement.getAttribute('data-theme') === 'dark' ||
+            document.documentElement.classList.contains('dark');
+          window.mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark ? 'dark' : 'default',
+            securityLevel: 'loose'
+          });
+          let idx = 0;
+          for (const wrap of nodes) {
+            if (!wrap.dataset.mermaidSrc) {
+              const pre = wrap.querySelector('pre.mermaid');
+              wrap.dataset.mermaidSrc = pre ? pre.textContent || '' : '';
+            }
+            const src = wrap.dataset.mermaidSrc;
+            if (!src.trim()) continue;
+            try {
+              const id = 'hugo-mermaid-' + Date.now() + '-' + idx++;
+              const out = await window.mermaid.render(id, src);
+              wrap.innerHTML = out.svg;
+            } catch (err) {
+              console.error('Mermaid render failed:', err);
+            }
+          }
+        }
+
+        renderAllMath();
+        void renderAllMermaid();
+
+        const btn = document.getElementById('hugo-theme-toggle');
+        if (btn) {
+          btn.addEventListener('click', function () {
+            const nextDark = !(
+              document.documentElement.getAttribute('data-theme') === 'dark' ||
+              document.documentElement.classList.contains('dark')
+            );
+            document.documentElement.classList.toggle('dark', nextDark);
+            document.documentElement.setAttribute('data-theme', nextDark ? 'dark' : 'light');
+            localStorage.setItem('hugo-benchmark-theme', nextDark ? 'dark' : 'light');
+            void renderAllMermaid();
+          });
+        }
+
+        let lastTheme = document.documentElement.getAttribute('data-theme');
+        new MutationObserver(function () {
+          const cur = document.documentElement.getAttribute('data-theme');
+          if (cur && cur !== lastTheme) {
+            lastTheme = cur;
+            document.documentElement.classList.toggle('dark', cur === 'dark');
+            void renderAllMermaid();
+          }
+        }).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-theme']
+        });
+      })();
+    </script>
+  </body>
+</html>

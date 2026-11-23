@@ -1,0 +1,7 @@
+{{- $type := .Get "type" | default "info" -}}
+{{- $defaults := dict "info" "信息说明" "note" "提示" "tip" "技巧建议" "warning" "注意" "danger" "危险警告" "caution" "危险警告" -}}
+{{- $title := .Get "title" | default (index $defaults $type | default (upper $type)) -}}
+<div class="hugo-callout is-{{ $type }}">
+  <div class="hugo-callout-title">{{ $title }}</div>
+  <div class="hugo-callout-body">{{ .Inner | markdownify }}</div>
+</div>

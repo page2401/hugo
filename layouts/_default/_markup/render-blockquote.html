@@ -1,0 +1,14 @@
+{{- if eq .Type "alert" -}}
+  {{- $labels := dict "note" "NOTE · 提示" "tip" "TIP · 技巧" "important" "IMPORTANT · 重要" "warning" "WARNING · 注意" "caution" "CAUTION · 危险警告" -}}
+  {{- $defaultTitle := index $labels .AlertType | default (upper .AlertType) -}}
+  <div class="hugo-gfm-alert is-{{ .AlertType }}">
+    <div class="hugo-gfm-alert-title">
+      {{- with .AlertTitle }}{{ . }}{{ else }}{{ $defaultTitle }}{{ end -}}
+    </div>
+    {{ .Text }}
+  </div>
+{{- else -}}
+  <blockquote>
+    {{ .Text }}
+  </blockquote>
+{{- end -}}

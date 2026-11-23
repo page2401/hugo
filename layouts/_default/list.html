@@ -1,0 +1,17 @@
+{{ define "main" }}
+<article class="doc-article">
+  {{ .Content }}
+  {{- if .Pages -}}
+  <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0 1rem;" />
+  <h3>本节下属页面（Hugo Section `.Pages.ByWeight` 自动枚举）</h3>
+  <ul>
+    {{- range .Pages.ByWeight -}}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- if .IsSection }} <small style="color: var(--fg-muted)">（Branch Bundle 分支子目录）</small>{{ end -}}
+    </li>
+    {{- end -}}
+  </ul>
+  {{- end -}}
+</article>
+{{ end }}

@@ -1,0 +1,29 @@
+baseURL = "https://page.2401.xyz/hugo/"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh-cn"
+title = "Hugo 0.170 基准实测子站"
+enableGitInfo = false
+disableKinds = ["taxonomy", "term", "RSS", "sitemap"]
+
+[params]
+  version = "0.170.1"
+  repo = "https://github.com/page2401/hugo"
+  portal = "https://page.2401.xyz/"
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    style = "github"
+    lineNos = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['$$', '$$']]
+          inline = [['$', '$']]

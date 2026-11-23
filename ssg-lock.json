@@ -1,0 +1,9 @@
+{
+  "engine": "hugo-extended",
+  "packages": {
+    "hugo": "0.170.1",
+    "goldmark": "builtin",
+    "katex": "0.19.1",
+    "mermaid": "12.3.0"
+  }
+}
