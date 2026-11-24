@@ -29,6 +29,16 @@
         --warning-bg: rgba(154, 103, 0, 0.1);
         --caution-fg: #d1242f;
         --caution-bg: rgba(209, 36, 47, 0.08);
+        --chroma-hl: rgba(212, 167, 44, 0.22);
+        --chroma-kw: #cf222e;
+        --chroma-str: #0a3069;
+        --chroma-fn: #6639ba;
+        --chroma-num: #0550ae;
+        --chroma-cmt: #59636e;
+        --chroma-del-fg: #82071e;
+        --chroma-del-bg: rgba(255, 129, 130, 0.2);
+        --chroma-ins-fg: #116329;
+        --chroma-ins-bg: rgba(46, 160, 67, 0.18);
       }
       html.dark,
       html[data-theme="dark"] {
@@ -51,6 +61,16 @@
         --warning-bg: rgba(187, 128, 9, 0.14);
         --caution-fg: #f85149;
         --caution-bg: rgba(248, 81, 73, 0.12);
+        --chroma-hl: rgba(187, 128, 9, 0.24);
+        --chroma-kw: #ff7b72;
+        --chroma-str: #a5d6ff;
+        --chroma-fn: #d2a8ff;
+        --chroma-num: #79c0ff;
+        --chroma-cmt: #8b949e;
+        --chroma-del-fg: #ffdcd7;
+        --chroma-del-bg: rgba(248, 81, 73, 0.22);
+        --chroma-ins-fg: #aff5b4;
+        --chroma-ins-bg: rgba(46, 160, 67, 0.22);
       }
       * {
         box-sizing: border-box;
@@ -231,6 +251,87 @@
       pre code {
         background: transparent;
         padding: 0;
+      }
+      .highlight .chroma {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .highlight > pre.chroma {
+        margin: 1rem 0;
+      }
+      .chroma .lntable {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin: 0;
+        border: 0;
+        font-size: 1em;
+      }
+      .chroma .lntd {
+        vertical-align: top;
+        padding: 0;
+        margin: 0;
+        border: 0;
+      }
+      .chroma .lntd:first-child {
+        width: 1%;
+        border-right: 1px solid var(--border);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .chroma .lntd pre {
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        padding: 0.85rem 0.9rem;
+        background: transparent;
+      }
+      .chroma .lnt,
+      .chroma .ln {
+        white-space: pre;
+        user-select: none;
+        -webkit-user-select: none;
+        color: var(--fg-muted);
+        padding: 0 0.35rem;
+      }
+      .chroma .line {
+        display: flex;
+      }
+      .chroma .hl {
+        background-color: var(--chroma-hl);
+        display: block;
+        width: 100%;
+        border-radius: 3px;
+      }
+      .chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .kt {
+        color: var(--chroma-kw);
+      }
+      .chroma .s, .chroma .sa, .chroma .sb, .chroma .sc, .chroma .dl, .chroma .sd, .chroma .s2, .chroma .se, .chroma .sh, .chroma .si, .chroma .sx, .chroma .sr, .chroma .s1, .chroma .ss {
+        color: var(--chroma-str);
+      }
+      .chroma .nf, .chroma .fm, .chroma .nb {
+        color: var(--chroma-fn);
+      }
+      .chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .il, .chroma .mo, .chroma .nt, .chroma .no {
+        color: var(--chroma-num);
+      }
+      .chroma .c, .chroma .ch, .chroma .cm, .chroma .c1, .chroma .cs, .chroma .cp, .chroma .cpf {
+        color: var(--chroma-cmt);
+      }
+      .chroma .gd {
+        color: var(--chroma-del-fg);
+        background-color: var(--chroma-del-bg);
+        display: inline-block;
+        width: 100%;
+      }
+      .chroma .gi {
+        color: var(--chroma-ins-fg);
+        background-color: var(--chroma-ins-bg);
+        display: inline-block;
+        width: 100%;
       }
       table {
         width: 100%;

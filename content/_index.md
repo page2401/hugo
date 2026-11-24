@@ -25,6 +25,10 @@ weight: 1
     <h3><a href="./04-directory/">04. 目录结构与路由取舍 →</a></h3>
     <p>深度剖析 Hugo 独有的 <code>_index.md</code>（Branch Bundle）与 <code>index.md</code>（Leaf Bundle）吞噬子路由陷阱。</p>
   </div>
+  <div class="hero-card">
+    <h3><a href="./05-code-blocks/">05. 高阶代码块与语法高亮 →</a></h3>
+    <p>实测内置 Go <strong>Chroma</strong> 引擎零 JS 静态高亮、<code>{hl_lines=[3,"7-9"], linenos=table}</code> 行号聚焦与 <code>diff</code> 着色。</p>
+  </div>
 </div>
 
 ## 精确锁定版本档案（`ssg-lock.json`）
@@ -33,8 +37,9 @@ Hugo 作为 Go 静态编译单文件引擎，无需 `node_modules` 或虚拟环�
 
 | 模块 / 组件 | 精确锁定版本 | 在本子站中的职责与接入方式 |
 | :--- | :--- | :--- |
-| `hugo` (Extended) | `0.170.1` | Go 单二进制核心编译器（内置 SCSS/SASS 与 Goldmark AST 钩子） |
+| `hugo` (Extended) | `0.170.1` | Go 单二进制核心编译器（内置 SCSS/SASS、Chroma 高亮与 Goldmark AST 钩子） |
 | `goldmark` | `builtin` | 内置 CommonMark / GFM 解析器，开启 `unsafe = true` 与 `passthrough` 数学透传 |
+| `chroma` | `builtin` | Go 原生词法高亮器，开启 `noClasses = false` 输出纯静态 `.chroma` 语义类 |
 | `katex` | `0.19.1` | 托管于 `static/vendor/`，配合 `render-passthrough.html` 精确渲染行内与块级公式 |
 | `mermaid` | `12.3.0` | 托管于 `static/vendor/`，配合 `render-codeblock-mermaid.html` 与 `data-theme` 联动深浅色绘图 |
 
@@ -46,3 +51,4 @@ Hugo 作为 Go 静态编译单文件引擎，无需 `node_modules` 或虚拟环�
 | [`02-diagrams`](./02-diagrams/) | 流程图与时序图 | 正文代码块零改动，仅由 `layouts/_default/_markup/render-codeblock-mermaid.html` 接管输出 |
 | [`03-math`](./03-math/) | 数学公式排版 | 正文公式零双反斜杠改写，靠 `markup.goldmark.extensions.passthrough` 阻断 Markdown 提前转义 `\\` 与 `\_` |
 | [`04-directory/`](./04-directory/) | 目录结构与路由取舍 | 目录入口必须重命名为 `_index.md`（Branch Bundle），否则 `index.md`（Leaf Bundle）会将子目录降级为静态资源导致 404 |
+| [`05-code-blocks`](./05-code-blocks/) | 高阶代码块与语法高亮 | 追加 `weight: 5`；启用 Go Chroma 围栏属性 `{hl_lines=[3,"7-9"], linenos=table}` 与原生 `diff` 红绿着色 |
